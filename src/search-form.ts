@@ -64,7 +64,7 @@ export function renderSearchFormBlock(searchFormData: SearchFormData) {
             <input id="max-price" type="text" value=${searchFormData.price} name="price" class="max-price" />
           </div>
           <div>
-            <div><button id=submitBtn >Найти</button></div>
+            <div><button id="submitBtn">Найти</button></div>
           </div>
         </div>
       </fieldset>
@@ -74,16 +74,12 @@ export function renderSearchFormBlock(searchFormData: SearchFormData) {
 
   document.querySelector('#submitBtn').addEventListener('click', function (event) {
     event.preventDefault();
-    const searchForm = document.forms[0];
 
-    console.log(searchForm.elements);
-
-    return {
-      city: searchForm.elements[0].value,
-      arrivalDate: searchForm.elements[0].value,
-      leaveDate: searchForm.elements[0].value,
-      price: searchForm.elements[0].value
-    }
-
+    search({
+      city: (document.getElementById("city") as HTMLInputElement).value,
+      arrivalDate: (document.getElementById("check-in-date") as HTMLInputElement).value,
+      leaveDate: (document.getElementById("check-out-date") as HTMLInputElement).value,
+      price: Number((document.getElementById("max-price") as HTMLInputElement).value)
+    });
   });
 }
