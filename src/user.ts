@@ -1,8 +1,31 @@
 import { renderBlock } from './lib.js'
 
-export function renderUserBlock (username: string, avatarUrl: string, favoriteItemsAmount: number) {
+export function renderUserBlock (username: string, avatarUrl: string, favoriteItemsAmount: number = 0) {
   const favoritesCaption = favoriteItemsAmount < 1 ? 'ничего нет' : favoriteItemsAmount
   const hasFavoriteItems = favoriteItemsAmount < 1 ? false : true
+
+  function getUserData() {
+    const user = JSON.parse(localStorage.getItem("user")) as unknown;
+
+    return (
+        user
+        && typeof user === "object"
+        && "username" in user
+        && "avatarUrl" in user
+      ) ? user : null;
+  }
+
+  function getFavoritesAmount() {
+    const favorites = JSON.parse(localStorage.getItem("favoriteItemsAmount"));
+
+    return (
+        favorites
+        && typeof favorites === "number"
+      ) ? favorites : null;
+  }
+
+  console.log('getUserData', getUserData());
+  console.log('getFavoritesAmount', getFavoritesAmount());
 
   renderBlock(
     'user-block',
