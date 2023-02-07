@@ -27,7 +27,12 @@ export function renderSearchFormBlock(searchFormData: SearchFormData) {
   let lastDayDate = getFormatedDate(new Date(currentYear, currentMouth + 2, 1));
 
   function search(searchFormData: SearchFormData) {
-    fetch(`http://localhost:3030/places?coordinates=59.9386,30.3141&checkInDate=${new Date(searchFormData.arrivalDate).getTime()}&checkOutDate=${new Date(searchFormData.leaveDate).getTime()}&maxPrice=${String(searchFormData.price)}`)
+    const coordinates = searchFormData.coordinates;
+    const checkInDate = new Date(searchFormData.arrivalDate).getTime();
+    const checkOutDate = new Date(searchFormData.leaveDate).getTime();
+    const maxPrice = searchFormData.price;
+
+    fetch(`http://localhost:3030/places?coordinates=${coordinates}&checkInDate=${checkInDate}&checkOutDate=${checkOutDate}&maxPrice=${maxPrice}`)
       .then(responce => responce.json())
       .then(data => console.log(data))
       .catch(error => console.error(error));
@@ -46,7 +51,7 @@ export function renderSearchFormBlock(searchFormData: SearchFormData) {
           <div>
             <label for="city">Город</label>
             <input id="city" name="city" type="text" disabled value=${searchFormData.city} />
-            <input type="hidden" disabled value="59.9386,30.3141" />
+            <input id="coordinates" type="hidden" disabled value=${searchFormData.coordinates} />
           </div>
           <!--<div class="providers">
             <label><input type="checkbox" name="provider" value="homy" checked /> Homy</label>
@@ -80,6 +85,7 @@ export function renderSearchFormBlock(searchFormData: SearchFormData) {
 
     search({
       city: (document.getElementById("city") as HTMLInputElement).value,
+      coordinates: (document.getElementById("coordinates") as HTMLInputElement).value,
       arrivalDate: (document.getElementById("check-in-date") as HTMLInputElement).value,
       leaveDate: (document.getElementById("check-out-date") as HTMLInputElement).value,
       price: Number((document.getElementById("max-price") as HTMLInputElement).value)
