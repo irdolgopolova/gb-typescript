@@ -1,4 +1,7 @@
 import { renderBlock } from './lib.js'
+import { FavoritePlace } from './favorite-place.js'
+
+const keyFavoriteItems = 'favoriteItems';
 
 export function renderSearchStubBlock () {
   renderBlock(
@@ -25,37 +28,73 @@ export function renderEmptyOrErrorSearchBlock (reasonMessage) {
 }
 
 function renderList(results) {
-  let arrayElements =  results.map(element => (`
-    <li class="result">
-    <div class="result-container">
-      <div class="result-img-container">
-        <div class="favorites active"></div>
-        <img class="result-img" src="${element.image}" alt="">
-      </div>
-      <div class="result-info">
-        <div class="result-info--header">
-          <p>${element.name}l</p>
-          <p class="price">${element.price}&#8381;</p>
+  let arrayElements =  results.map(element => {
+    return (`
+    <li id="result_${element.id}" class="result">
+      <div class="result-container">
+        <div class="result-img-container">
+          <div id="favorites_${element.id}" class="favorites ${getClassForElement(element.id)}"></div>
+          <img class="result-img" src="${element.image}" alt="">
         </div>
-        <div class="result-info--map"><i class="map-icon"></i> ${element.remoteness}км от вас</div>
-        <div class="result-info--descr">${element.description}</div>
-        <div class="result-info--footer">
-          <div>
-            <button>Забронировать</button>
+        <div class="result-info">
+          <div class="result-info--header">
+            <p>${element.name}l</p>
+            <p class="price">${element.price}&#8381;</p>
+          </div>
+          <div class="result-info--map"><i class="map-icon"></i> ${element.remoteness}км от вас</div>
+          <div class="result-info--descr">${element.description}</div>
+          <div class="result-info--footer">
+            <div>
+              <button>Забронировать</button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </li>
-  `));
+    </li>
+  `)});
 
   return arrayElements.join('');
 }
 
-export function renderSearchResultsBlock(results) {
-  // console.log("results", results);
-  // console.log(renderList(results));
+function getClassForElement(elementId: number) {
+  return isFavoriteItemExist(elementId) ? "active" : "";
+}
 
+function getFavoriteItems() {
+  return JSON.parse(localStorage.getItem(keyFavoriteItems)) ?? [];
+}
+
+function isFavoriteItemExist(elementId: number) {
+  return getFavoriteItems().find((element) => element.id === elementId);
+}
+
+function toggleFavoriteItem(favoritePlace: FavoritePlace) {
+  let favoriteItems = getFavoriteItems();
+
+  if (isFavoriteItemExist(favoritePlace.id)) {
+    favoriteItems = favoriteItems.filter(element => element.id !== favoritePlace.id);
+  } else {
+    favoriteItems.push(favoritePlace);
+  }
+
+  localStorage.setItem(keyFavoriteItems, JSON.stringify(favoriteItems))
+}
+
+function renderEventClick(results) {
+  results.forEach(element => {
+    document.getElementById(`favorites_${element.id}`).addEventListener("click", (event) => {
+      (event.currentTarget as HTMLElement).classList.toggle("active");
+
+      toggleFavoriteItem({
+        id: element.id,
+        name: element.name,
+        image: element.image
+      });
+    });
+  });
+}
+
+export function renderSearchResultsBlock(results) {
   renderBlock(
     'search-results-block',
     `
@@ -74,5 +113,7 @@ export function renderSearchResultsBlock(results) {
       ${renderList(results)}
     </ul>
     `
-  )
+  );
+
+  renderEventClick(results);
 }
