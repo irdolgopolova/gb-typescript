@@ -1,5 +1,6 @@
 import { renderBlock } from './lib.js'
 import { SearchFormData } from './search-form-data.js';
+import { renderSearchResultsBlock } from './search-results.js';
 
 function getFormatedDate(date: Date) {
   let year = date.toLocaleString("default", { year: "numeric" });
@@ -34,7 +35,7 @@ export function renderSearchFormBlock(searchFormData: SearchFormData) {
 
     fetch(`http://localhost:3030/places?coordinates=${coordinates}&checkInDate=${checkInDate}&checkOutDate=${checkOutDate}&maxPrice=${maxPrice}`)
       .then(responce => responce.json())
-      .then(data => console.log(data))
+      .then(data => renderSearchResultsBlock())
       .catch(error => console.error(error));
   }
 
