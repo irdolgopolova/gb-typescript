@@ -27,7 +27,10 @@ export function renderSearchFormBlock(searchFormData: SearchFormData) {
   let lastDayDate = getFormatedDate(new Date(currentYear, currentMouth + 2, 1));
 
   function search(searchFormData: SearchFormData) {
-    console.log(searchFormData);
+    fetch(`http://localhost:3030/places?coordinates=59.9386,30.3141&checkInDate=${new Date(searchFormData.arrivalDate).getTime()}&checkOutDate=${new Date(searchFormData.leaveDate).getTime()}&maxPrice=${String(searchFormData.price)}`)
+      .then(responce => responce.json())
+      .then(data => console.log(data))
+      .catch(error => console.error(error));
   }
 
   const test = (event) => {

@@ -9,7 +9,7 @@ window.addEventListener('DOMContentLoaded', () => {
     city: 'Санкт-Петербург',
     arrivalDate: '',
     leaveDate: '',
-    price: 0
+    price: 100
   })
   renderSearchStubBlock()
   renderToast(

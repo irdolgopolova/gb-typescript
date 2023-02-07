@@ -8,7 +8,7 @@ window.addEventListener('DOMContentLoaded', () => {
         city: 'Санкт-Петербург',
         arrivalDate: '',
         leaveDate: '',
-        price: 0
+        price: 100
     });
     renderSearchStubBlock();
     renderToast({ text: 'Это пример уведомления. Используйте его при необходимости', type: 'success' }, { name: 'Понял', handler: () => { console.log('Уведомление закрыто'); } });
