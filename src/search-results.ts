@@ -1,5 +1,6 @@
 import { renderBlock } from './lib.js'
 import { FavoritePlace } from './favorite-place.js'
+import { renderUserBlock } from './user.js';
 
 const keyFavoriteItems = 'favoriteItems';
 
@@ -77,7 +78,8 @@ function toggleFavoriteItem(favoritePlace: FavoritePlace) {
     favoriteItems.push(favoritePlace);
   }
 
-  localStorage.setItem(keyFavoriteItems, JSON.stringify(favoriteItems))
+  localStorage.setItem(keyFavoriteItems, JSON.stringify(favoriteItems));
+  renderUserBlock('Wade Warren', '/img/avatar.png', Object.keys(favoriteItems).length);
 }
 
 function renderEventClick(results) {

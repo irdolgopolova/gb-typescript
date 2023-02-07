@@ -24,9 +24,6 @@ export function renderUserBlock (username: string, avatarUrl: string, favoriteIt
       ) ? favorites : null;
   }
 
-  console.log('getUserData', getUserData());
-  console.log('getFavoritesAmount', getFavoritesAmount());
-
   renderBlock(
     'user-block',
     `
