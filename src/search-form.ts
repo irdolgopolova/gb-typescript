@@ -1,4 +1,5 @@
 import { renderBlock } from './lib.js'
+import { SearchFormData } from './search-form-data.js';
 
 function getFormatedDate(date: Date) {
   let year = date.toLocaleString("default", { year: "numeric" });
@@ -8,32 +9,40 @@ function getFormatedDate(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
-export function renderSearchFormBlock(arrivalDate: string = '', leaveDate: string = '') {
+export function renderSearchFormBlock(searchFormData: SearchFormData) {
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
   const currentMouth = currentDate.getMonth();
   const currentDay = currentDate.getDate();
 
-  if (!arrivalDate) {
-    arrivalDate = getFormatedDate(new Date(currentYear, currentMouth, currentDay + 1));
+  if (!searchFormData.arrivalDate) {
+    searchFormData.arrivalDate = getFormatedDate(new Date(currentYear, currentMouth, currentDay + 1));
   }
 
-  if (!leaveDate) {
-    leaveDate = getFormatedDate(new Date(currentYear, currentMouth, currentDay + 3));
+  if (!searchFormData.leaveDate) {
+    searchFormData.leaveDate = getFormatedDate(new Date(currentYear, currentMouth, currentDay + 3));
   }
 
   let today = getFormatedDate(currentDate);
   let lastDayDate = getFormatedDate(new Date(currentYear, currentMouth + 2, 1));
 
+  function search(searchFormData: SearchFormData) {
+    console.log(searchFormData);
+  }
+
+  const test = (event) => {
+    console.log(event);
+  }
+
   renderBlock(
     'search-form-block',
     `
-    <form>
+    <form name="search">
       <fieldset class="search-filedset">
         <div class="row">
           <div>
             <label for="city">Город</label>
-            <input id="city" type="text" disabled value="Санкт-Петербург" />
+            <input id="city" name="city" type="text" disabled value=${searchFormData.city} />
             <input type="hidden" disabled value="59.9386,30.3141" />
           </div>
           <!--<div class="providers">
@@ -44,22 +53,33 @@ export function renderSearchFormBlock(arrivalDate: string = '', leaveDate: strin
         <div class="row">
           <div>
             <label for="check-in-date">Дата заезда</label>
-            <input id="check-in-date" type="date" value=${arrivalDate} min=${today} max=${lastDayDate} name="checkin" />
+            <input id="check-in-date" type="date" value=${searchFormData.arrivalDate} min=${today} max=${lastDayDate} name="checkin" />
           </div>
           <div>
             <label for="check-out-date">Дата выезда</label>
-            <input id="check-out-date" type="date" value=${leaveDate} min=${today} max=${lastDayDate} name="checkout" />
+            <input id="check-out-date" type="date" value=${searchFormData.leaveDate} min=${today} max=${lastDayDate} name="checkout" />
           </div>
           <div>
             <label for="max-price">Макс. цена суток</label>
-            <input id="max-price" type="text" value="" name="price" class="max-price" />
+            <input id="max-price" type="text" value=${searchFormData.price} name="price" class="max-price" />
           </div>
           <div>
-            <div><button>Найти</button></div>
+            <div><button id="submitBtn">Найти</button></div>
           </div>
         </div>
       </fieldset>
     </form>
     `
   )
+
+  document.querySelector('#submitBtn').addEventListener('click', function (event) {
+    event.preventDefault();
+
+    search({
+      city: (document.getElementById("city") as HTMLInputElement).value,
+      arrivalDate: (document.getElementById("check-in-date") as HTMLInputElement).value,
+      leaveDate: (document.getElementById("check-out-date") as HTMLInputElement).value,
+      price: Number((document.getElementById("max-price") as HTMLInputElement).value)
+    });
+  });
 }
