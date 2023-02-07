@@ -39,7 +39,7 @@ export function renderSearchFormBlock(searchFormData: SearchFormData) {
         if (data.length === 0) {
           renderEmptyOrErrorSearchBlock("Ничего не найдено");
         } else {
-          renderSearchResultsBlock();
+          renderSearchResultsBlock(data);
         }
       })
       .catch(error => renderEmptyOrErrorSearchBlock(error));
