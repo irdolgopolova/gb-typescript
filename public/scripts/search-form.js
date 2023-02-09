@@ -19,7 +19,9 @@ export function renderSearchFormBlock(searchFormData) {
     let today = getFormatedDate(currentDate);
     let lastDayDate = getFormatedDate(new Date(currentYear, currentMouth + 2, 1));
     function search(searchFormData) {
-        console.log(searchFormData);
+        fetch(`http://localhost:3030/places?coordinates=59.9386,30.3141&checkInDate=${new Date(searchFormData.arrivalDate).getTime()}&checkOutDate=${new Date(searchFormData.leaveDate).getTime()}&maxPrice=${String(searchFormData.price)}`)
+            .then(data => console.log(data))
+            .catch(error => console.log(error));
     }
     const test = (event) => {
         console.log(event);
@@ -52,7 +54,7 @@ export function renderSearchFormBlock(searchFormData) {
             <input id="max-price" type="text" value=${searchFormData.price} name="price" class="max-price" />
           </div>
           <div>
-            <div><button id=submitBtn >Найти</button></div>
+            <div><button id="submitBtn">Найти</button></div>
           </div>
         </div>
       </fieldset>
@@ -60,7 +62,11 @@ export function renderSearchFormBlock(searchFormData) {
     `);
     document.querySelector('#submitBtn').addEventListener('click', function (event) {
         event.preventDefault();
-        const searchForm = document.forms[0];
-        console.log(searchForm.elements);
+        search({
+            city: document.getElementById("city").value,
+            arrivalDate: document.getElementById("check-in-date").value,
+            leaveDate: document.getElementById("check-out-date").value,
+            price: Number(document.getElementById("max-price").value)
+        });
     });
 }

@@ -7,9 +7,10 @@ window.addEventListener('DOMContentLoaded', () => {
   renderUserBlock('Wade Warren', '/img/avatar.png', 0)
   renderSearchFormBlock({
     city: 'Санкт-Петербург',
+    coordinates: '59.9386,30.3141',
     arrivalDate: '',
     leaveDate: '',
-    price: 0
+    price: 100
   })
   renderSearchStubBlock()
   renderToast(
