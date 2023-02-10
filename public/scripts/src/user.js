@@ -14,8 +14,6 @@ export function renderUserBlock(username, avatarUrl, favoriteItemsAmount = 0) {
         return (favorites
             && typeof favorites === "number") ? favorites : null;
     }
-    console.log('getUserData', getUserData());
-    console.log('getFavoritesAmount', getFavoritesAmount());
     renderBlock('user-block', `
     <div class="header-container">
       <img class="avatar" src="${avatarUrl}" alt="Wade Warren" />

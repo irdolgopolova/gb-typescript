@@ -1,0 +1,12 @@
+{
+  "name": "geekbrains-flat-rent-sdk",
+  "version": "1.0.0",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "start": "http-server -p 3040"
+  },
+  "dependencies": {
+    "http-server": "^0.12.3"
+  }
+}
