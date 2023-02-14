@@ -1,6 +1,9 @@
 import { renderBlock } from './lib.js'
 import { SearchFormData } from './search-form-data.js';
 import { renderEmptyOrErrorSearchBlock, renderSearchResultsBlock } from './search-results.js';
+import { FlatRentSdk } from "./../typescript-flatrent-sdk/public/scripts/flat-rent-sdk";
+
+const flatRentSdk = new FlatRentSdk();
 
 function getFormatedDate(date: Date) {
   let year = date.toLocaleString("default", { year: "numeric" });
@@ -33,14 +36,39 @@ export function renderSearchFormBlock(searchFormData: SearchFormData) {
     const checkOutDate = new Date(searchFormData.leaveDate).getTime();
     const maxPrice = searchFormData.price;
 
-    fetch(`http://localhost:3030/places?coordinates=${coordinates}&checkInDate=${checkInDate}&checkOutDate=${checkOutDate}&maxPrice=${maxPrice}`)
-      .then(responce => responce.json())
+
+     flatRentSdk.search({
+        checkInDate: new Date(searchFormData.arrivalDate),
+        checkOutDate: new Date(searchFormData.leaveDate),
+        city: searchFormData.city,
+        priceLimit: searchFormData.price
+      })
       .then(data => {
         if (data.length === 0) {
           renderEmptyOrErrorSearchBlock("Ничего не найдено");
         } else {
-          renderSearchResultsBlock(data);
+          renderSearchResultsBlock(data.map(element => ({
+            id: element.id,
+            name: element.title,
+            description: element.details,
+            price: element.totalPrice,
+            coordinates: element.coordinates,
+            image: element.photos[0],
+          })));
         }
+      })
+      .catch(error => renderEmptyOrErrorSearchBlock(error));
+
+
+    fetch(`http://localhost:3030/places?coordinates=${coordinates}&checkInDate=${checkInDate}&checkOutDate=${checkOutDate}&maxPrice=${maxPrice}`)
+      .then(responce => responce.json())
+      .then(data => {
+        console.log(data);
+        // if (data.length === 0) {
+        //   renderEmptyOrErrorSearchBlock("Ничего не найдено");
+        // } else {
+        //   renderSearchResultsBlock(data);
+        // }
       })
       .catch(error => renderEmptyOrErrorSearchBlock(error));
   }
