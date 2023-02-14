@@ -1,7 +1,7 @@
 import { renderBlock } from './lib.js'
 import { SearchFormData } from './search-form-data.js';
 import { renderEmptyOrErrorSearchBlock, renderSearchResultsBlock } from './search-results.js';
-import { FlatRentSdk } from "./../typescript-flatrent-sdk/public/scripts/flat-rent-sdk";
+import { FlatRentSdk } from './flat-rent-sdk.js';
 
 const flatRentSdk = new FlatRentSdk();
 
@@ -36,25 +36,30 @@ export function renderSearchFormBlock(searchFormData: SearchFormData) {
     const checkOutDate = new Date(searchFormData.leaveDate).getTime();
     const maxPrice = searchFormData.price;
 
+    let dataOfPlace = [];
 
-     flatRentSdk.search({
-        checkInDate: new Date(searchFormData.arrivalDate),
-        checkOutDate: new Date(searchFormData.leaveDate),
-        city: searchFormData.city,
-        priceLimit: searchFormData.price
+    flatRentSdk.search({
+      checkInDate: new Date(searchFormData.arrivalDate),
+      checkOutDate: new Date(searchFormData.leaveDate),
+      city: searchFormData.city,
+      priceLimit: searchFormData.price
       })
       .then(data => {
         if (data.length === 0) {
           renderEmptyOrErrorSearchBlock("Ничего не найдено");
         } else {
-          renderSearchResultsBlock(data.map(element => ({
-            id: element.id,
-            name: element.title,
-            description: element.details,
-            price: element.totalPrice,
-            coordinates: element.coordinates,
-            image: element.photos[0],
-          })));
+          // let dataSearch = data.map(element => ({
+          //   id: element.id,
+          //   name: element.title,
+          //   description: element.details,
+          //   price: element.totalPrice,
+          //   coordinates: element.coordinates,
+          //   image: element.photos[0],
+          // }));
+
+          // dataOfPlace = [...dataOfPlace, ...dataSearch];
+
+          // renderSearchResultsBlock(dataOfPlace);
         }
       })
       .catch(error => renderEmptyOrErrorSearchBlock(error));
@@ -64,13 +69,16 @@ export function renderSearchFormBlock(searchFormData: SearchFormData) {
       .then(responce => responce.json())
       .then(data => {
         console.log(data);
-        // if (data.length === 0) {
-        //   renderEmptyOrErrorSearchBlock("Ничего не найдено");
-        // } else {
-        //   renderSearchResultsBlock(data);
-        // }
+        if (data.length === 0) {
+          renderEmptyOrErrorSearchBlock("Ничего не найдено");
+        } else {
+          // dataOfPlace = [...dataOfPlace, ...data];
+
+          // renderSearchResultsBlock(dataOfPlace);
+        }
       })
       .catch(error => renderEmptyOrErrorSearchBlock(error));
+
   }
 
   renderBlock(
