@@ -21,6 +21,7 @@ export function addDays(date: Date, days: number): Date
 export const backendPort: number
 export const localStorageKey: string
 
+
 export class FlatRentSdk {
   database: hotelData[]
   constructor()
