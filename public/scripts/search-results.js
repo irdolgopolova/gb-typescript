@@ -1,6 +1,8 @@
 import { renderBlock } from './lib.js';
 import { renderUserBlock } from './user.js';
 const keyFavoriteItems = 'favoriteItems';
+// let filter = "cheap";
+// let results = [];
 export function renderSearchStubBlock() {
     renderBlock('search-results-block', `
     <div class="before-results-block">
@@ -17,7 +19,27 @@ export function renderEmptyOrErrorSearchBlock(reasonMessage) {
     </div>
     `);
 }
-function renderList(results) {
+function filterResult(results, filter) {
+    switch (filter) {
+        case "cheap":
+            console.log("cheap");
+            results = results.sort((elem1, elem2) => elem1.price > elem2.price ? 1 : -1);
+            break;
+        case "expensive":
+            console.log("expensive");
+            results = results.sort((elem1, elem2) => elem1.price < elem2.price ? 1 : -1);
+            break;
+        case "closer":
+            console.log("closer");
+            results = results.sort((elem1, elem2) => elem1.remoteness > elem2.remoteness ? 1 : -1);
+            break;
+        default:
+            break;
+    }
+    return results;
+}
+function renderList(results, filter) {
+    results = filterResult(results, filter);
     let arrayElements = results.map(element => {
         return (`
     <li id="result_${element.id}" class="result">
@@ -49,8 +71,8 @@ function getClassForElement(elementId) {
     return isFavoriteItemExist(elementId) ? "active" : "";
 }
 function getFavoriteItems() {
-    var _a;
-    return (_a = JSON.parse(localStorage.getItem(keyFavoriteItems))) !== null && _a !== void 0 ? _a : [];
+    var _a, _b;
+    return (_b = JSON.parse((_a = localStorage.getItem(keyFavoriteItems)) !== null && _a !== void 0 ? _a : "")) !== null && _b !== void 0 ? _b : [];
 }
 function isFavoriteItemExist(elementId) {
     return getFavoriteItems().find((element) => element.id === elementId);
@@ -58,7 +80,7 @@ function isFavoriteItemExist(elementId) {
 function toggleFavoriteItem(favoritePlace) {
     let favoriteItems = getFavoriteItems();
     if (isFavoriteItemExist(favoritePlace.id)) {
-        favoriteItems = favoriteItems.filter(element => element.id !== favoritePlace.id);
+        favoriteItems = favoriteItems.filter((element) => element.id !== favoritePlace.id);
     }
     else {
         favoriteItems.push(favoritePlace);
@@ -68,31 +90,42 @@ function toggleFavoriteItem(favoritePlace) {
 }
 function renderEventClick(results) {
     results.forEach(element => {
-        document.getElementById(`favorites_${element.id}`).addEventListener("click", (event) => {
-            event.currentTarget.classList.toggle("active");
-            toggleFavoriteItem({
-                id: element.id,
-                name: element.name,
-                image: element.image
+        const favorites = document.getElementById(`favorites_${element.id}`);
+        if (favorites)
+            favorites.addEventListener("click", (event) => {
+                event.currentTarget.classList.toggle("active");
+                toggleFavoriteItem({
+                    id: `${element.id}`,
+                    name: element.name,
+                    image: element.image
+                });
             });
-        });
     });
+    const sortSelect = document.querySelector('#sort-select');
+    if (sortSelect)
+        sortSelect.addEventListener('change', (event) => {
+            console.log(event.target);
+            const select = document.querySelector('#sort-select');
+            const selectedOption = select.options[select.selectedIndex];
+            renderSearchResultsBlock(results, selectedOption.value);
+        });
 }
-export function renderSearchResultsBlock(results) {
+export function renderSearchResultsBlock(results, filter = "cheap") {
+    results = results;
     renderBlock('search-results-block', `
     <div class="search-results-header">
         <p>Результаты поиска</p>
         <div class="search-results-filter">
             <span><i class="icon icon-filter"></i> Сортировать:</span>
-            <select>
-                <option selected="">Сначала дешёвые</option>
-                <option selected="">Сначала дорогие</option>
-                <option>Сначала ближе</option>
+            <select id="sort-select">
+                <option value="cheap">Сначала дешёвые</option>
+                <option value="expensive">Сначала дорогие</option>
+                <option value="closer">Сначала ближе</option>
             </select>
         </div>
     </div>
     <ul class="results-list">
-      ${renderList(results)}
+      ${renderList(results, filter)}
     </ul>
     `);
     renderEventClick(results);

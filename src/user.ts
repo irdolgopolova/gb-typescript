@@ -5,7 +5,7 @@ export function renderUserBlock (username: string, avatarUrl: string, favoriteIt
   const hasFavoriteItems = favoriteItemsAmount < 1 ? false : true
 
   function getUserData() {
-    const user = JSON.parse(localStorage.getItem("user")) as unknown;
+    const user = JSON.parse(localStorage.getItem("user") ?? "") as unknown;
 
     return (
         user
@@ -16,7 +16,7 @@ export function renderUserBlock (username: string, avatarUrl: string, favoriteIt
   }
 
   function getFavoritesAmount() {
-    const favorites = JSON.parse(localStorage.getItem("favoriteItemsAmount"));
+    const favorites = JSON.parse(localStorage.getItem("favoriteItemsAmount") ?? "");
 
     return (
         favorites
