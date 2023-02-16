@@ -1,5 +1,14 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 import { renderBlock } from './lib.js';
-import { renderEmptyOrErrorSearchBlock } from './search-results.js';
+import { renderEmptyOrErrorSearchBlock, renderSearchResultsBlock } from './search-results.js';
 import { FlatRentSdk } from './flat-rent-sdk.js';
 const flatRentSdk = new FlatRentSdk();
 function getFormatedDate(date) {
@@ -21,50 +30,54 @@ export function renderSearchFormBlock(searchFormData) {
     }
     let today = getFormatedDate(currentDate);
     let lastDayDate = getFormatedDate(new Date(currentYear, currentMouth + 2, 1));
-    function search(searchFormData) {
-        const coordinates = searchFormData.coordinates;
-        const checkInDate = new Date(searchFormData.arrivalDate).getTime();
-        const checkOutDate = new Date(searchFormData.leaveDate).getTime();
-        const maxPrice = searchFormData.price;
+    function renderResult(results) {
+        if (results.length === 0) {
+            renderEmptyOrErrorSearchBlock("Ничего не найдено");
+        }
+        else {
+            renderSearchResultsBlock(results);
+        }
+    }
+    const search = (searchFormData) => __awaiter(this, void 0, void 0, function* () {
         let dataOfPlace = [];
-        flatRentSdk.search({
+        yield flatRentSdk.search({
             checkInDate: new Date(searchFormData.arrivalDate),
             checkOutDate: new Date(searchFormData.leaveDate),
             city: searchFormData.city,
             priceLimit: searchFormData.price
         })
             .then(data => {
-            if (data.length === 0) {
-                renderEmptyOrErrorSearchBlock("Ничего не найдено");
-            }
-            else {
-                // let dataSearch = data.map(element => ({
-                //   id: element.id,
-                //   name: element.title,
-                //   description: element.details,
-                //   price: element.totalPrice,
-                //   coordinates: element.coordinates,
-                //   image: element.photos[0],
-                // }));
-                // dataOfPlace = [...dataOfPlace, ...dataSearch];
-                // renderSearchResultsBlock(dataOfPlace);
+            if (data.length !== 0) {
+                let dataSearch = data.map((element) => {
+                    let newElement = {
+                        id: element.id,
+                        image: element.photos[0],
+                        name: element.title,
+                        price: element.totalPrice,
+                        description: element.details,
+                        coordinates: element.coordinates,
+                        remoteness: "0"
+                    };
+                    return newElement;
+                });
+                dataOfPlace = [...dataOfPlace, ...dataSearch];
             }
         })
             .catch(error => renderEmptyOrErrorSearchBlock(error));
-        fetch(`http://localhost:3030/places?coordinates=${coordinates}&checkInDate=${checkInDate}&checkOutDate=${checkOutDate}&maxPrice=${maxPrice}`)
+        const coordinates = searchFormData.coordinates;
+        const checkInDate = new Date(searchFormData.arrivalDate).getTime();
+        const checkOutDate = new Date(searchFormData.leaveDate).getTime();
+        const maxPrice = searchFormData.price;
+        yield fetch(`http://localhost:3030/places?coordinates=${coordinates}&checkInDate=${checkInDate}&checkOutDate=${checkOutDate}&maxPrice=${maxPrice}`)
             .then(responce => responce.json())
             .then(data => {
-            console.log(data);
-            if (data.length === 0) {
-                renderEmptyOrErrorSearchBlock("Ничего не найдено");
-            }
-            else {
-                // dataOfPlace = [...dataOfPlace, ...data];
-                // renderSearchResultsBlock(dataOfPlace);
+            if (data.length !== 0) {
+                dataOfPlace = [...dataOfPlace, ...data];
             }
         })
             .catch(error => renderEmptyOrErrorSearchBlock(error));
-    }
+        renderResult(dataOfPlace);
+    });
     renderBlock('search-form-block', `
     <form name="search">
       <fieldset class="search-filedset">
@@ -99,14 +112,16 @@ export function renderSearchFormBlock(searchFormData) {
       </fieldset>
     </form>
     `);
-    document.querySelector('#submitBtn').addEventListener('click', function (event) {
-        event.preventDefault();
-        search({
-            city: document.getElementById("city").value,
-            coordinates: document.getElementById("coordinates").value,
-            arrivalDate: document.getElementById("check-in-date").value,
-            leaveDate: document.getElementById("check-out-date").value,
-            price: Number(document.getElementById("max-price").value)
+    const submitBtn = document.querySelector('#submitBtn');
+    if (submitBtn)
+        submitBtn.addEventListener('click', function (event) {
+            event.preventDefault();
+            search({
+                city: document.getElementById("city").value,
+                coordinates: document.getElementById("coordinates").value,
+                arrivalDate: document.getElementById("check-in-date").value,
+                leaveDate: document.getElementById("check-out-date").value,
+                price: Number(document.getElementById("max-price").value)
+            });
         });
-    });
 }

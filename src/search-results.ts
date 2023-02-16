@@ -3,6 +3,8 @@ import { FavoritePlace } from './favorite-place.js'
 import { renderUserBlock } from './user.js';
 
 const keyFavoriteItems = 'favoriteItems';
+// let filter = "cheap";
+// let results = [];
 
 export function renderSearchStubBlock () {
   renderBlock(
@@ -16,7 +18,7 @@ export function renderSearchStubBlock () {
   )
 }
 
-export function renderEmptyOrErrorSearchBlock (reasonMessage) {
+export function renderEmptyOrErrorSearchBlock(reasonMessage: string) {
   renderBlock(
     'search-results-block',
     `
@@ -28,8 +30,31 @@ export function renderEmptyOrErrorSearchBlock (reasonMessage) {
   )
 }
 
-function renderList(results) {
-  let arrayElements =  results.map(element => {
+function filterResult(results: Array<ResultsData>, filter: string) {
+  switch (filter) {
+    case "cheap":
+      console.log("cheap")
+      results = results.sort((elem1, elem2) => elem1.price > elem2.price ? 1 : -1)
+      break
+    case "expensive":
+      console.log("expensive")
+      results = results.sort((elem1, elem2) => elem1.price < elem2.price ? 1 : -1)
+      break
+    case "closer":
+      console.log("closer")
+      results = results.sort((elem1, elem2) => elem1.remoteness > elem2.remoteness ? 1 : -1)
+      break
+    default:
+      break;
+  }
+
+  return results
+}
+
+function renderList(results: Array<ResultsData>, filter: string) {
+  results = filterResult(results, filter)
+
+  let arrayElements = results.map(element => {
     return (`
     <li id="result_${element.id}" class="result">
       <div class="result-container">
@@ -57,23 +82,23 @@ function renderList(results) {
   return arrayElements.join('');
 }
 
-function getClassForElement(elementId: number) {
+function getClassForElement(elementId: string) {
   return isFavoriteItemExist(elementId) ? "active" : "";
 }
 
 function getFavoriteItems() {
-  return JSON.parse(localStorage.getItem(keyFavoriteItems)) ?? [];
+  return JSON.parse(localStorage.getItem(keyFavoriteItems) ?? "") ?? [];
 }
 
-function isFavoriteItemExist(elementId: number) {
-  return getFavoriteItems().find((element) => element.id === elementId);
+function isFavoriteItemExist(elementId: string) {
+  return getFavoriteItems().find((element: FavoritePlace) => element.id === elementId);
 }
 
 function toggleFavoriteItem(favoritePlace: FavoritePlace) {
   let favoriteItems = getFavoriteItems();
 
   if (isFavoriteItemExist(favoritePlace.id)) {
-    favoriteItems = favoriteItems.filter(element => element.id !== favoritePlace.id);
+    favoriteItems = favoriteItems.filter((element: FavoritePlace)  => element.id !== favoritePlace.id);
   } else {
     favoriteItems.push(favoritePlace);
   }
@@ -82,21 +107,36 @@ function toggleFavoriteItem(favoritePlace: FavoritePlace) {
   renderUserBlock('Wade Warren', '/img/avatar.png', Object.keys(favoriteItems).length);
 }
 
-function renderEventClick(results) {
+function renderEventClick(results: Array<ResultsData>) {
   results.forEach(element => {
-    document.getElementById(`favorites_${element.id}`).addEventListener("click", (event) => {
-      (event.currentTarget as HTMLElement).classList.toggle("active");
+    const favorites = document.getElementById(`favorites_${element.id}`)
+    if (favorites)
+      favorites.addEventListener("click", (event) => {
+        (event.currentTarget as HTMLElement).classList.toggle("active");
 
-      toggleFavoriteItem({
-        id: element.id,
-        name: element.name,
-        image: element.image
+        toggleFavoriteItem({
+          id: `${element.id}`,
+          name: element.name,
+          image: element.image
+        });
       });
-    });
   });
+
+  const sortSelect = document.querySelector('#sort-select');
+  if (sortSelect)
+    sortSelect.addEventListener('change', (event) => {
+      console.log(event.target)
+      const select = document.querySelector('#sort-select') as HTMLSelectElement
+      const selectedOption = select.options[select.selectedIndex] as HTMLOptionElement
+
+      renderSearchResultsBlock(results, selectedOption.value)
+    })
+
 }
 
-export function renderSearchResultsBlock(results) {
+export function renderSearchResultsBlock(results: Array<ResultsData>, filter = "cheap") {
+  results = results;
+
   renderBlock(
     'search-results-block',
     `
@@ -104,15 +144,15 @@ export function renderSearchResultsBlock(results) {
         <p>Результаты поиска</p>
         <div class="search-results-filter">
             <span><i class="icon icon-filter"></i> Сортировать:</span>
-            <select>
-                <option selected="">Сначала дешёвые</option>
-                <option selected="">Сначала дорогие</option>
-                <option>Сначала ближе</option>
+            <select id="sort-select">
+                <option value="cheap">Сначала дешёвые</option>
+                <option value="expensive">Сначала дорогие</option>
+                <option value="closer">Сначала ближе</option>
             </select>
         </div>
     </div>
     <ul class="results-list">
-      ${renderList(results)}
+      ${renderList(results, filter)}
     </ul>
     `
   );

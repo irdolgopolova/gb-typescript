@@ -1,5 +1,5 @@
 export interface FavoritePlace {
-    id: number,
+    id: string,
     name: string,
     image: string
 }
